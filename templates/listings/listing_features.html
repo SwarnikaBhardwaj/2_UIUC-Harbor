@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}All Listings | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Current Listings</h2>
+    <ul>
+        {% for item in listings %}
+            <li>{{ item.title }} - {{ item.description }}</li>
+        {% empty %}
+            <li>The harbor is currently empty.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
