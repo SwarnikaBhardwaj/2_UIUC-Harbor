@@ -1,0 +1,32 @@
+Harbor - Campus Marketplace
+Week 1 Progress (February 6, 2026)
+
+COMPLETED TODAY:
+- Django project setup (Harbor)
+- Created 3 models: Student, Category, Listing
+- Database migrations completed successfully, admin panel configured
+- Repository structure reorganized
+- Settings split into dev/prod environments
+- Environment variables secured with .env
+- .gitignore configured
+
+WORK DIVISION (for all 5 of us):
+- Person 1: Settings refactor, security, environment setup - Swarnika
+- Person 2: Function-based views (HttpResponse, render) - Melissa
+- Person 3: Class-based views (Base View, ListView) - Melissa
+- Person 4: Templates (base.html, inheritance, loops) - Katherine
+- Person 5: Documentation, README, final review - Ananya and Urvi
+
+EXPERIENCE NOTES:
+HttpResponse vs render():
+- HttpResponse useful for simple responses, API endpoints, or when you need full control over HTML
+- render() is much cleaner for template-based views, better separation of concerns
+- We prefer render() for most cases as it's more maintainable
+
+Base CBV vs Generic CBV:
+- Base CBV gives more control but requires more boilerplate
+- Generic CBV (ListView) is incredibly fast for standard list/detail pages
+- Generic CBVs follow Django conventions, making code more predictable
+- We'll use Generic CBVs for standard CRUD, Base CBVs for custom logic
+
+
