@@ -93,3 +93,102 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.title} by {self.seller.first_name}"
 
+class Conversation(models.Model):
+   student1 = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='conversations_started'
+   )
+   student2 = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='conversations_received'
+   )
+   listing = models.ForeignKey(
+       Listing,
+       on_delete=models.SET_NULL,
+       null=True,
+       blank=True
+   )
+   last_message_at = models.DateTimeField(null=True, blank=True)
+   created_at = models.DateTimeField(auto_now_add=True)
+
+
+   def __str__(self):
+       return f"Conversation between {self.student1} and {self.student2}"
+
+
+class Message(models.Model):
+   conversation = models.ForeignKey(
+       Conversation,
+       on_delete=models.CASCADE,
+       related_name='messages'
+   )
+   sender = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='sent_messages'
+   )
+   receiver = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='received_messages'
+   )
+   message_text = models.TextField()
+   is_read = models.BooleanField(default=False)
+   created_at = models.DateTimeField(auto_now_add=True)
+
+
+   def __str__(self):
+       return f"Message from {self.sender}"
+
+
+class ServiceRequest(models.Model):
+   requester = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='service_requests'
+   )
+   category = models.ForeignKey(
+       Category,
+       on_delete=models.PROTECT
+   )
+   title = models.CharField(max_length=200)
+   description = models.TextField()
+   budget = models.DecimalField(
+       max_digits=10,
+       decimal_places=2,
+       null=True,
+       blank=True
+   )
+   preferred_contact = models.CharField(max_length=200)
+   is_fulfilled = models.BooleanField(default=False)
+   created_at = models.DateTimeField(auto_now_add=True)
+
+
+   def __str__(self):
+       return self.title
+
+
+class Review(models.Model):
+   reviewer = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='reviews_given'
+   )
+   reviewed_student = models.ForeignKey(
+       Student,
+       on_delete=models.CASCADE,
+       related_name='reviews_received'
+   )
+   listing = models.ForeignKey(
+       Listing,
+       on_delete=models.CASCADE
+   )
+   rating = models.PositiveSmallIntegerField()
+   review_text = models.TextField(blank=True)
+   created_at = models.DateTimeField(auto_now_add=True)
+
+
+   def __str__(self):
+       return f"Review by {self.reviewer}"
