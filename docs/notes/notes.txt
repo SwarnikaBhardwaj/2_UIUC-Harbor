@@ -10,12 +10,14 @@ COMPLETED TODAY:
 - Environment variables secured with .env
 - .gitignore configured
 
-WORK DIVISION (for all 5 of us):
-- Person 1: Settings refactor, security, environment setup - Swarnika
-- Person 2: Function-based views (HttpResponse, render) - Melissa
-- Person 3: Class-based views (Base View, ListView) - Melissa
-- Person 4: Templates (base.html, inheritance, loops) - Katherine
-- Person 5: Documentation, README, final review - Ananya and Urvi
+WORK DIVISION:
+- Task 1: Settings refactor, security, environment setup - Swarnika
+- Task 2: Function-based views (HttpResponse, render) - Melissa, Urvi
+- Task 3: Class-based views (Base View, ListView) - Melissa and Urvi
+- Task 4: Templates (base.html, inheritance, loops) - Katherine
+- Task 5: Documentation, README, final review - Ananya, Urvi, Melissa
+- Task 6 (Extra): Created Models for Conversation, Message, Service Request, and Reviews - Ananya
+
 
 EXPERIENCE NOTES:
 HttpResponse vs render():
@@ -28,5 +30,10 @@ Base CBV vs Generic CBV:
 - Generic CBV (ListView) is incredibly fast for standard list/detail pages
 - Generic CBVs follow Django conventions, making code more predictable
 - We'll use Generic CBVs for standard CRUD, Base CBVs for custom logic
+
+Understanding and Personal Development
+- Struggled with understanding some file structures
+- Familiarizing ourselves with navigating and collaborating on GitHub
+- More comfortable working on the application and better understanding of our base layer
 
 
