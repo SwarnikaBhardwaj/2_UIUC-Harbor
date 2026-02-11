@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Platform Statistics | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Harbor Platform Statistics</h2>
+
+    <div style="background: #f5f5f5; padding: 20px; margin: 20px 0;">
+        <h3>Overall Totals</h3>
+        <ul>
+            <li><strong>Total Active Listings:</strong> {{ total_listings }}</li>
+            <li><strong>Total Students:</strong> {{ total_students }}</li>
+        </ul>
+    </div>
+
+    <div style="background: #e8f4f8; padding: 20px; margin: 20px 0;">
+        <h3>Listings by Category (Grouped with Count)</h3>
+        <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Number of Listings</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for category in categories_with_counts %}
+                <tr>
+                    <td><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></td>
+                    <td>{{ category.get_category_type_display }}</td>
+                    <td>{{ category.listing_count }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No categories found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="background: #fff3cd; padding: 20px; margin: 20px 0;">
+        <h3>Top Sellers (Grouped with Count)</h3>
+        <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Number of Listings</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for student in students_with_counts %}
+                <tr>
+                    <td><a href="{{ student.get_absolute_url }}">{{ student.first_name }} {{ student.last_name }}</a></td>
+                    <td>{{ student.university_email }}</td>
+                    <td>{{ student.listing_count }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No students with listings.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

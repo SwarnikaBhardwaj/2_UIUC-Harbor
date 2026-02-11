@@ -2,13 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Harbor{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+        }
+        nav {
+            background-color: #444;
+            padding: 10px 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 5px 10px;
+        }
+        nav a:hover {
+            background-color: #555;
+            border-radius: 3px;
+        }
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Harbor Navigation</h1>
-        <hr>
+        <h1>Harbor - Campus Marketplace</h1>
     </header>
+
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'listing_list' %}">Listings</a>
+        <a href="{% url 'student_list' %}">Students</a>
+        <a href="{% url 'category_list' %}">Categories</a>
+        <a href="{% url 'listing_search_get' %}">Search</a>
+        <a href="{% url 'listing_search_post' %}">Filter</a>
+        <a href="{% url 'aggregation_stats' %}">Stats</a>
+    </nav>
 
     <main>
         {% block content %}
@@ -16,9 +67,7 @@
     </main>
 
     <footer>
-        <hr>
         <p>&copy; 2026 Harbor Team</p>
     </footer>
-
 </body>
 </html>

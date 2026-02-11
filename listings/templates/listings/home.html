@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Welcome to Harbor - Campus Marketplace</h2>
+    <p>Connect with verified students for services, fundraisers, and items for sale.</p>
+    <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
+        <h3>Platform Statistics</h3>
+        <ul>
+            <li><strong>Active Listings:</strong> {{ total_listings }}</li>
+            <li><strong>Verified Students:</strong> {{ total_students }}</li>
+            <li><strong>Categories:</strong> {{ total_categories }}</li>
+        </ul>
+    </div>
+    <div>
+        <h3>Quick Links</h3>
+        <ul>
+            <li><a href="{% url 'listing_list' %}">Browse All Listings</a></li>
+            <li><a href="{% url 'student_list' %}">View Students</a></li>
+            <li><a href="{% url 'category_list' %}">Explore Categories</a></li>
+        </ul>
+    </div>
+{% endblock %}

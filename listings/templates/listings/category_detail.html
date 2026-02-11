@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} | Harbor{% endblock %}
+
+{% block content %}
+    <h2>{{ category.name }}</h2>
+    <p><em>Type: {{ category.get_category_type_display }}</em></p>
+    {% if category.description %}
+    <p>{{ category.description }}</p>
+    {% endif %}
+    <h3>Listings in this Category ({{ category_listings.count }})</h3>
+    <ul>
+    {% for listing in category_listings %}
+        <li>
+            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+            by <a href="{{ listing.seller.get_absolute_url }}">{{ listing.seller.first_name }}</a>
+            - ${{ listing.price|default:"Free" }}
+        </li>
+    {% empty %}
+        <li>No listings in this category yet.</li>
+    {% endfor %}
+    </ul>
+    <p><a href="{% url 'category_list' %}">&larr; Back to All Categories</a></p>
+{% endblock %}

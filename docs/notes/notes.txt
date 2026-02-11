@@ -37,3 +37,20 @@ Understanding and Personal Development
 - More comfortable working on the application and better understanding of our base layer
 
 
+Week 3 Progress (section 1 and 2)
+
+SECTION 1 - URL Linking , Navigation
+1 Implemented get_absolute_url() in Student, Category, Listing models
+2 Created home page at root URL (/)
+3 Added navigation bar with {% url %} tags (no hardcoded paths)
+4 Created detail pages for Listings, Students, Categories using PKs
+
+SECTION 2 - ORM Queries , Data Presentation
+1 GET search: /search/?q=term - shareable, visible in URL
+2 POST filter: /filter/ with price range - hidden from URL
+3 Relationship-spanning query using __ : category__name filtering
+4 Aggregations used are count() for totals, annotate(Count()) for grouping
+5 Templates use {% for %} and {% empty %} properly
+
+
+

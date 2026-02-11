@@ -57,8 +57,10 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView
 from .models import Listing
+from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView
+from .models import Student, Category
 
-# --- Function Based Views ---
 
 def listing_manual_view(request):
     listings = Listing.objects.filter(is_active=True)
@@ -101,4 +103,127 @@ class ListingGenericCBV(ListView):
     def get_queryset(self): # Fixed Indentation
         return Listing.objects.filter(is_active=True)
 
+# started here in week 3: Swarnika's part
 
+def home_view(request):
+    total_listings = Listing.objects.filter(is_active=True).count()
+    total_students = Student.objects.filter(is_verified=True).count()
+    total_categories = Category.objects.count()
+    context = {
+        'total_listings': total_listings,
+        'total_students': total_students,
+        'total_categories': total_categories,
+    }
+    return render(request, 'listings/home.html', context)
+
+
+class ListingDetailView(DetailView):
+    model = Listing
+    template_name = 'listings/listing_detail.html'
+    context_object_name = 'listing'
+
+
+class StudentDetailView(DetailView):
+    model = Student
+    template_name = 'listings/student_detail.html'
+    context_object_name = 'student'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['student_listings'] = self.object.listings.filter(is_active=True)
+        return context
+
+
+class CategoryDetailView(DetailView):
+    model = Category
+    template_name = 'listings/category_detail.html'
+    context_object_name = 'category'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category_listings'] = self.object.listings.filter(is_active=True)
+        return context
+
+class StudentListView(ListView):
+    model = Student
+    template_name = 'listings/student_list.html'
+    context_object_name = 'students'
+    def get_queryset(self):
+        return Student.objects.filter(is_verified=True)
+
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'listings/category_list.html'
+    context_object_name = 'categories'
+
+
+def listing_search_get(request):
+    query = request.GET.get('q', '')
+    if query:
+        listings = Listing.objects.filter(
+            is_active=True,
+            title__icontains=query
+        ) | Listing.objects.filter(
+            is_active=True,
+            description__icontains=query
+        )
+    else:
+        listings = Listing.objects.filter(is_active=True)
+    context = {
+        'listings': listings,
+        'query': query,
+        'search_type': 'GET'
+    }
+    return render(request, 'listings/listing_search.html', context)
+
+
+def listing_search_post(request):
+    listings = Listing.objects.filter(is_active=True)
+    min_price = None
+    max_price = None
+    if request.method == 'POST':
+        min_price = request.POST.get('min_price', '')
+        max_price = request.POST.get('max_price', '')
+        if min_price:
+            listings = listings.filter(price__gte=float(min_price))
+        if max_price:
+            listings = listings.filter(price__lte=float(max_price))
+
+    context = {
+        'listings': listings,
+        'min_price': min_price,
+        'max_price': max_price,
+        'search_type': 'POST'
+    }
+    return render(request, 'listings/listing_filter.html', context)
+
+
+def listing_by_category_name(request, category_name):
+    listings = Listing.objects.filter(
+        is_active=True,
+        category__name__iexact=category_name
+    )
+    context = {
+        'listings': listings,
+        'category_name': category_name,
+        'count': listings.count()
+    }
+    return render(request, 'listings/listing_by_category.html', context)
+
+
+def aggregation_stats(request):
+    from django.db.models import Count
+    total_listings = Listing.objects.filter(is_active=True).count()
+    total_students = Student.objects.count()
+    categories_with_counts = Category.objects.annotate(
+        listing_count=Count('listings')
+    ).order_by('-listing_count')
+    students_with_counts = Student.objects.annotate(
+        listing_count=Count('listings')
+    ).filter(listing_count__gt=0).order_by('-listing_count')
+    context = {
+        'total_listings': total_listings,
+        'total_students': total_students,
+        'categories_with_counts': categories_with_counts,
+        'students_with_counts': students_with_counts,
+    }
+    return render(request, 'listings/aggregation_stats.html', context)

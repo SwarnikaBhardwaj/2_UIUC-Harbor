@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Filter by Price | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Filter Listings by Price (POST Method)</h2>
+
+    <p><em>Filter data hidden from URL - for sensitive searches!</em></p>
+
+    <form method="POST" action="{% url 'listing_search_post' %}">
+        {% csrf_token %}
+        <label>Min Price: $</label>
+        <input type="number" name="min_price" value="{{ min_price }}" step="0.01" min="0">
+
+        <label>Max Price: $</label>
+        <input type="number" name="max_price" value="{{ max_price }}" step="0.01" min="0">
+
+        <button type="submit">Filter</button>
+    </form>
+
+    {% if min_price or max_price %}
+        <h3>Filtered Results ({{ listings.count }} found)</h3>
+        <p>Price range: ${{ min_price|default:"0" }} - ${{ max_price|default:"∞" }}</p>
+    {% else %}
+        <h3>All Listings ({{ listings.count }})</h3>
+    {% endif %}
+
+    <ul>
+    {% for listing in listings %}
+        <li>
+            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+            - ${{ listing.price|default:"Free" }}
+        </li>
+    {% empty %}
+        <li>No listings in this price range.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

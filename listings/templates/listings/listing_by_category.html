@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category_name }} Listings | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Listings in "{{ category_name }}"</h2>
+
+    <p><em>Using relationship-spanning query: category__name</em></p>
+
+    <p>Found {{ count }} listing(s)</p>
+
+    <ul>
+    {% for listing in listings %}
+        <li>
+            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+            by <a href="{{ listing.seller.get_absolute_url }}">{{ listing.seller.first_name }}</a>
+            - ${{ listing.price|default:"Free" }}
+        </li>
+    {% empty %}
+        <li>No listings found in this category.</li>
+    {% endfor %}
+    </ul>
+
+    <p><a href="{% url 'category_list' %}">&larr; Back to Categories</a></p>
+{% endblock %}

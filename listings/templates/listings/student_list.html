@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}All Students | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Verified Students</h2>
+
+    <ul>
+    {% for student in students %}
+        <li>
+            <a href="{{ student.get_absolute_url }}">
+                {{ student.first_name }} {{ student.last_name }}
+            </a>
+            - {{ student.listings.count }} listing(s)
+        </li>
+    {% empty %}
+        <li>No verified students yet.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

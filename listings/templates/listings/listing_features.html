@@ -6,7 +6,10 @@
     <h2>Current Listings</h2>
     <ul>
         {% for item in listings %}
-            <li>{{ item.title }} - {{ item.description }}</li>
+            <li>
+                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+                - {{ item.description|truncatewords:15 }}
+            </li>
         {% empty %}
             <li>The harbor is currently empty.</li>
         {% endfor %}

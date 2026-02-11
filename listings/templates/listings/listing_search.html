@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Search Listings | Harbor{% endblock %}
+
+{% block content %}
+    <h2>Search Listings (GET Method)</h2>
+
+    <p><em>Search query appears in URL - shareable link!</em></p>
+
+    <form method="GET" action="{% url 'listing_search_get' %}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by title or description..." size="40">
+        <button type="submit">Search</button>
+    </form>
+    {% if query %}
+        <h3>Results for "{{ query }}" ({{ listings.count }} found)</h3>
+    {% else %}
+        <h3>All Listings ({{ listings.count }})</h3>
+    {% endif %}
+    <ul>
+    {% for listing in listings %}
+        <li>
+            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
+            - {{ listing.category.name }} - ${{ listing.price|default:"Free" }}
+        </li>
+    {% empty %}
+        <li>No listings found.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

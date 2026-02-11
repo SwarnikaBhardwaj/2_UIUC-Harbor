@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }} | Harbor{% endblock %}
+
+{% block content %}
+    <h2>{{ listing.title }}</h2>
+
+    <div style="background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #333;">
+        <p><strong>Category:</strong>
+            <a href="{{ listing.category.get_absolute_url }}">{{ listing.category.name }}</a>
+        </p>
+        <p><strong>Seller:</strong>
+            <a href="{{ listing.seller.get_absolute_url }}">{{ listing.seller.first_name }} {{ listing.seller.last_name }}</a>
+        </p>
+        <p><strong>Price:</strong> ${{ listing.price|default:"Free/Negotiable" }}</p>
+        <p><strong>Payment Methods:</strong> {{ listing.get_accepted_payment_display }}</p>
+        <p><strong>Contact:</strong> {{ listing.contact_method }}</p>
+    </div>
+
+    <h3>Description</h3>
+    <p>{{ listing.description }}</p>
+
+    <p><small>Posted on {{ listing.created_at|date:"F d, Y" }}</small></p>
+
+    <p><a href="{% url 'listing_list' %}">&larr; Back to All Listings</a></p>
+{% endblock %}

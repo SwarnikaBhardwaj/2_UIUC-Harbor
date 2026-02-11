@@ -25,6 +25,12 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.university_email})"
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.university_email})"
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('student_detail', args=[str(self.id)])
 
 class Category(models.Model):
     CATEGORY_TYPES = [
@@ -46,6 +52,13 @@ class Category(models.Model):
         ]
     def __str__(self):
         return f"{self.name} ({self.category_type})"
+
+    def __str__(self):
+        return f"{self.name} ({self.category_type})"
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('category_detail', args=[str(self.id)])
 
 class Listing(models.Model):
     PAYMENT_METHODS = [
@@ -92,6 +105,13 @@ class Listing(models.Model):
         ]
     def __str__(self):
         return f"{self.title} by {self.seller.first_name}"
+
+    def __str__(self):
+        return f"{self.title} by {self.seller.first_name}"
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('listing_detail', args=[str(self.id)])
 
 class Conversation(models.Model):
    student1 = models.ForeignKey(
