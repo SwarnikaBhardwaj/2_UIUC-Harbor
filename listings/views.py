@@ -52,7 +52,7 @@
 #         return Listing.objects.filter(is_active=True)
 #
 
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView
@@ -60,6 +60,7 @@ from .models import Listing
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from .models import Student, Category
+import json
 
 
 def listing_manual_view(request):
@@ -227,3 +228,47 @@ def aggregation_stats(request):
         'students_with_counts': students_with_counts,
     }
     return render(request, 'listings/aggregation_stats.html', context)
+
+def listing_api_list(request):
+    """
+    1. At least one JSON endpoint
+    2. Uses JsonResponse
+    3. FBV (Function-Based View)
+    4. Filtering via query parameters
+    """
+    # Start with all active listings
+    listings = Listing.objects.filter(is_active=True)
+
+    # Filtering via query parameters (e.g., ?cat=Seller)
+    category_name = request.GET.get('cat')
+    if category_name:
+        listings = listings.filter(category__name__icontains=category_name)
+
+    # Convert the database objects into a simple Python list
+    data = []
+    for item in listings:
+        data.append({
+            "title": item.title,
+            "price": str(item.price) if item.price else "Free",
+            "category": item.category.name,
+            "seller": item.seller.first_name
+        })
+
+    # Uses JsonResponse
+    return JsonResponse({"listings": data, "count": len(data)}, safe=False)
+
+
+def api_mime_demo(request):
+    """
+    REQ: Demonstrate both HttpResponse and JsonResponse
+    and observe MIME type differences.
+    """
+    sample_data = {"message": "Hello, this is a MIME test"}
+
+    # If the user visits /api/test/?type=http
+    if request.GET.get('type') == 'http':
+        # Returns as text/html
+        return HttpResponse(json.dumps(sample_data))
+
+    # Returns as application/json (Default)
+    return JsonResponse(sample_data)

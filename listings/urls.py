@@ -35,4 +35,6 @@ urlpatterns = [
     path('filter/', listing_search_post, name='listing_search_post'),
     path('category/<str:category_name>/listings/', listing_by_category_name, name='listing_by_category_name'),
     path('stats/', aggregation_stats, name='aggregation_stats'),
+    path('api/listings/', views.listing_api_list, name='api_listings'),
+    path('api/test/', views.api_mime_demo, name='api_mime_test'),
 ]
