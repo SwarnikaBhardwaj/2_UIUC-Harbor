@@ -18,7 +18,6 @@ WORK DIVISION:
 - Task 5: Documentation, README, final review - Ananya, Urvi, Melissa
 - Task 6 (Extra): Created Models for Conversation, Message, Service Request, and Reviews - Ananya
 
-
 EXPERIENCE NOTES:
 HttpResponse vs render():
 - HttpResponse useful for simple responses, API endpoints, or when you need full control over HTML
@@ -37,7 +36,7 @@ Understanding and Personal Development
 - More comfortable working on the application and better understanding of our base layer
 
 
-Week 3 Progress (section 1 and 2)
+Week 3 Progress
 
 SECTION 1 - URL Linking , Navigation
 1 Implemented get_absolute_url() in Student, Category, Listing models
@@ -51,6 +50,16 @@ SECTION 2 - ORM Queries , Data Presentation
 3 Relationship-spanning query using __ : category__name filtering
 4 Aggregations used are count() for totals, annotate(Count()) for grouping
 5 Templates use {% for %} and {% empty %} properly
+
+SECTION 3
+SECTION 4
+- Created new visualizations to aggregate listings by type
+- Need to understand how to share data with teammates while data is contained in the gitignore
+- Used the Django ORM annotate and Count functions to group listings by category and calculate totals
+- Used io.BytesIO to handle image data in-memory, to avoid unnecessary disk writes
+SECTION 5
+SECTION 6
+
 
 
 
