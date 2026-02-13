@@ -64,4 +64,15 @@
             </tbody>
         </table>
     </div>
+    <div style="background: #fff; border: 1px solid #ddd; padding: 20px; margin: 20px 0; text-align: center;">
+        <h3>Listing Distribution Visualization</h3>
+
+        <img src="{% url 'category_stats_chart' %}"
+             alt="Bar chart showing the number of listings in each marketplace category"
+             style="max-width: 100%; height: auto; border: 1px solid #eee;">
+
+        <p style="font-style: italic; color: #666; margin-top: 10px;">
+            Caption: This visualization is generated server-side using Matplotlib and served via a memory-aware BytesIO buffer.
+        </p>
+    </div>
 {% endblock %}
