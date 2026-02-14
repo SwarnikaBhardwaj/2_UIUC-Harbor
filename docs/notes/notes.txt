@@ -52,6 +52,21 @@ SECTION 2 - ORM Queries , Data Presentation
 5 Templates use {% for %} and {% empty %} properly
 
 SECTION 3
+Static File Organization Choice:
+Static files were placed at the app level under: listings/static/listings/
+
+This structure follows Django best practices by namespacing static assets
+inside the app directory. Using the additional “listings/” folder inside
+static prevents naming conflicts if multiple apps include files with the
+same name (e.g., styles.css).
+
+The stylesheet (styles.css) is linked in base.html using:
+
+{% load static %}
+{% static 'listings/css/styles.css' %}
+
+This ensures Django properly resolves static paths in development and
+production environments.
 
 SECTION 4
 - Created new visualizations to aggregate listings by type

@@ -60,3 +60,7 @@ This project provides a public API to allow external applications to access and 
    - URL Path: /api/test/
    - Default Behavior (Json Response): returns the data with a "Content-Type: application/json" header. 
    - HTTP Override Behavior (HttpResponse): by adding "?type=http" to the URL, the view returns the data using HttpResponse
+## Section 3: Static Files & UI Styling
+	- Created Header and Footer Bar in navy blue 
+	- Changed hyperlinks for pages into neat tabs
+	- Made listings tabular in look as per the wireframe
