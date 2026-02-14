@@ -1,57 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Harbor{% endblock %}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px 20px;
-        }
-        nav {
-            background-color: #444;
-            padding: 10px 20px;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-right: 20px;
-            padding: 5px 10px;
-        }
-        nav a:hover {
-            background-color: #555;
-            border-radius: 3px;
-        }
-        main {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 5px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            margin-top: 40px;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'listings/css/styles.css' %}">
 </head>
 <body>
-    <header>
+    <header class="header">
         <h1>Harbor - Campus Marketplace</h1>
     </header>
 
-    <nav>
+
+    <nav class="navbar">
         <a href="{% url 'home' %}">Home</a>
         <a href="{% url 'listing_list' %}">Listings</a>
         <a href="{% url 'student_list' %}">Students</a>
@@ -61,12 +24,12 @@
         <a href="{% url 'aggregation_stats' %}">Stats</a>
     </nav>
 
-    <main>
+    <main class="container">
         {% block content %}
         {% endblock %}
     </main>
 
-    <footer>
+    <footer class="footer">
         <p>&copy; 2026 Harbor Team</p>
     </footer>
 </body>
