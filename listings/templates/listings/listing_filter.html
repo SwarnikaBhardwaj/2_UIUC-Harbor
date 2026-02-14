@@ -7,7 +7,7 @@
 
     <p><em>Filter data hidden from URL - for sensitive searches!</em></p>
 
-    <form method="POST" action="{% url 'listing_search_post' %}">
+    <form method="POST" action="{% url 'listing_filter_cbv' %}">
         {% csrf_token %}
         <label>Min Price: $</label>
         <input type="number" name="min_price" value="{{ min_price }}" step="0.01" min="0">
@@ -16,6 +16,9 @@
         <input type="number" name="max_price" value="{{ max_price }}" step="0.01" min="0">
 
         <button type="submit">Filter</button>
+        <a href="{% url 'listing_filter_cbv' %}" style="text-decoration: none;">
+            <button type="button" style="background-color: #ccc; color: black;">Clear Filter</button>
+        </a>
     </form>
 
     {% if min_price or max_price %}

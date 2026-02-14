@@ -52,12 +52,16 @@ SECTION 2 - ORM Queries , Data Presentation
 5 Templates use {% for %} and {% empty %} properly
 
 SECTION 3
+
 SECTION 4
 - Created new visualizations to aggregate listings by type
 - Need to understand how to share data with teammates while data is contained in the gitignore
 - Used the Django ORM annotate and Count functions to group listings by category and calculate totals
 - Used io.BytesIO to handle image data in-memory, to avoid unnecessary disk writes
 SECTION 5
+- Added a GET search form at /search/ and a POST price filter at /filter/.
+- Inputs are handled safely with request.GET/request.POST and {% csrf_token %} for security.
+- Results display properly in templates, including when no listings match.
 SECTION 6
 
 

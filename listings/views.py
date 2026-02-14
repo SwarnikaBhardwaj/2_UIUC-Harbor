@@ -157,6 +157,31 @@ class CategoryListView(ListView):
     context_object_name = 'categories'
 
 
+class ListingFilterCBV(ListView):
+    model = Listing
+    template_name = 'listings/listing_filter.html'
+    context_object_name = 'listings'
+
+    def get_queryset(self):
+        return Listing.objects.filter(is_active=True)
+
+    def post(self, request, *args, **kwargs):
+        min_price = request.POST.get('min_price', '')
+        max_price = request.POST.get('max_price', '')
+
+        listings = Listing.objects.filter(is_active=True)
+        if min_price:
+            listings = listings.filter(price__gte=float(min_price))
+        if max_price:
+            listings = listings.filter(price__lte=float(max_price))
+
+        return render(request, self.template_name, {
+            'listings': listings,
+            'min_price': min_price,
+            'max_price': max_price,
+            'search_type': 'POST (CBV Implementation)'
+        })
+
 def listing_search_get(request):
     query = request.GET.get('q', '')
     if query:
@@ -177,25 +202,25 @@ def listing_search_get(request):
     return render(request, 'listings/listing_search.html', context)
 
 
-def listing_search_post(request):
-    listings = Listing.objects.filter(is_active=True)
-    min_price = None
-    max_price = None
-    if request.method == 'POST':
-        min_price = request.POST.get('min_price', '')
-        max_price = request.POST.get('max_price', '')
-        if min_price:
-            listings = listings.filter(price__gte=float(min_price))
-        if max_price:
-            listings = listings.filter(price__lte=float(max_price))
-
-    context = {
-        'listings': listings,
-        'min_price': min_price,
-        'max_price': max_price,
-        'search_type': 'POST'
-    }
-    return render(request, 'listings/listing_filter.html', context)
+# def listing_search_post(request):
+#     listings = Listing.objects.filter(is_active=True)
+#     min_price = None
+#     max_price = None
+#     if request.method == 'POST':
+#         min_price = request.POST.get('min_price', '')
+#         max_price = request.POST.get('max_price', '')
+#         if min_price:
+#             listings = listings.filter(price__gte=float(min_price))
+#         if max_price:
+#             listings = listings.filter(price__lte=float(max_price))
+#
+#     context = {
+#         'listings': listings,
+#         'min_price': min_price,
+#         'max_price': max_price,
+#         'search_type': 'POST'
+#     }
+#     return render(request, 'listings/listing_filter.html', context)
 
 
 def listing_by_category_name(request, category_name):

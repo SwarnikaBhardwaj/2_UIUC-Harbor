@@ -12,7 +12,7 @@ from .views import (
     StudentListView,
     CategoryListView,
     listing_search_get,
-    listing_search_post,
+    ListingFilterCBV,
     listing_by_category_name,
     aggregation_stats,
 )
@@ -32,7 +32,7 @@ urlpatterns = [
     path('students/<int:pk>/', StudentDetailView.as_view(), name='student_detail'),
     path('categories/<int:pk>/', CategoryDetailView.as_view(), name='category_detail'),
     path('search/', listing_search_get, name='listing_search_get'),
-    path('filter/', listing_search_post, name='listing_search_post'),
+    path('filter/', views.ListingFilterCBV.as_view(), name='listing_filter_cbv'),
     path('category/<str:category_name>/listings/', listing_by_category_name, name='listing_by_category_name'),
     path('stats/', aggregation_stats, name='aggregation_stats'),
     path('api/listings/', views.listing_api_list, name='api_listings'),
