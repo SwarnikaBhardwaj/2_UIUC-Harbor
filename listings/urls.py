@@ -37,6 +37,8 @@ urlpatterns = [
     path('stats/', aggregation_stats, name='aggregation_stats'),
     path('api/listings/', views.listing_api_list, name='api_listings'),
     path('api/test/', views.api_mime_demo, name='api_mime_test'),
+    path('api/listings-per-category/', views.listings_per_category_api, name='api_listings_per_category'),
+    path('charts/categories/', views.category_chart_view, name='category_chart'),
     # Week 3 - urvi added path below to create sample chart
     path('analytics/category-chart.png', charts.marketplace_distribution_chart, name='category_stats_chart'),
 ]

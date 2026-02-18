@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Listings per Category</title>
+
+  <!-- Vega libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+
+<h2>Listings Per Category</h2>
+
+<div id="chart"></div>
+
+<script>
+  const spec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Listings per Category",
+    "data": {
+      "url": "/api/listings-per-category/"
+    },
+    "mark": "bar",
+    "encoding": {
+      "x": {
+        "field": "category_name",
+        "type": "nominal",
+        "sort": "-y",
+        "title": "Category"
+      },
+      "y": {
+        "field": "listing_count",
+        "type": "quantitative",
+        "title": "Number of Listings"
+      }
+    }
+  };
+
+  vegaEmbed("#chart", spec);
+</script>
+
+</body>
+</html>

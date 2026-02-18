@@ -56,11 +56,13 @@ from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView
+from django.db.models import Count, F
 from .models import Listing
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from .models import Student, Category
 import json
+
 
 
 def listing_manual_view(request):
@@ -282,6 +284,19 @@ def listing_api_list(request):
     # Uses JsonResponse
     return JsonResponse({"listings": data, "count": len(data)}, safe=False)
 
+def listings_per_category_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET only"}, status=405)
+
+    data = (
+        Listing.objects
+        .filter(is_active=True)
+        .values(category_name=F("category__name"))
+        .annotate(listing_count=Count("id"))
+        .order_by("category_name")
+    )
+
+    return JsonResponse(list(data), safe=False)
 
 def api_mime_demo(request):
     """
@@ -297,3 +312,6 @@ def api_mime_demo(request):
 
     # Returns as application/json (Default)
     return JsonResponse(sample_data)
+
+def category_chart_view(request):
+    return render(request, "listings/category_chart.html")
