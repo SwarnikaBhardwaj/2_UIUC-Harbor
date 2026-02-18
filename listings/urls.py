@@ -38,7 +38,13 @@ urlpatterns = [
     path('api/listings/', views.listing_api_list, name='api_listings'),
     path('api/test/', views.api_mime_demo, name='api_mime_test'),
     path('api/listings-per-category/', views.listings_per_category_api, name='api_listings_per_category'),
-    path('charts/categories/', views.category_chart_view, name='category_chart'),
+    path('api/listings-avg-price-per-category/', views.listings_avg_price_per_category_api,
+         name='api_listings_avg_price_per_category'),    path('charts/categories/', views.category_chart_view, name='category_chart'),
+    path('charts/price-line/', views.price_line_chart_view, name='price_line_chart'),
+    path('api/external-demo/', views.external_api_demo, name='api_external_demo'),
+    path('export/students/csv/', views.export_students_csv, name='export_students_csv'),
+    path('export/students/json/', views.export_students_json, name='export_students_json'),
+    path('reports/', views.reports_view, name='reports'),
     # Week 3 - urvi added path below to create sample chart
     path('analytics/category-chart.png', charts.marketplace_distribution_chart, name='category_stats_chart'),
 ]

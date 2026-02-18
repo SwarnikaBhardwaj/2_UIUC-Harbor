@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reports</title>
+</head>
+<body>
+    <h1>Student Reports</h1>
+
+    <h2>Summary</h2>
+    <p>Total Students: {{ total_students }}</p>
+    <p>Verified Students: {{ verified_students }}</p>
+
+    <h2>Students by Verification Status</h2>
+    <table border="1">
+        <tr>
+            <th>Verified</th>
+            <th>Count</th>
+        </tr>
+        {% for status, count in students_by_verified.items %}
+        <tr>
+            <td>{{ status }}</td>
+            <td>{{ count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No data available.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Export Data</h2>
+    <a href="{% url 'export_students_csv' %}"><button>Download CSV</button></a>
+    <a href="{% url 'export_students_json' %}"><button>Download JSON</button></a>
+</body>
+</html>

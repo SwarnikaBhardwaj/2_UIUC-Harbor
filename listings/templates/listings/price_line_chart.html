@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Average Listing Price per Category</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+  <h2>Average Listing Price per Category</h2>
+  <div id="price_chart"></div>
+
+  <script>
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "description": "Average listing price per category",
+      "data": {
+        "url": "{% url 'api_listings_avg_price_per_category' %}",
+        "format": {"type": "json"}
+      },
+      "mark": "line",
+      "encoding": {
+        "x": {"field": "category_name", "type": "ordinal", "title": "Category"},
+        "y": {"field": "avg_price", "type": "quantitative", "title": "Average Price"},
+        "tooltip": [
+          {"field": "category_name", "type": "ordinal", "title": "Category"},
+          {"field": "avg_price", "type": "quantitative", "title": "Average Price"}
+        ]
+      }
+    };
+
+    vegaEmbed('#price_chart', spec);
+  </script>
+</body>
+</html>

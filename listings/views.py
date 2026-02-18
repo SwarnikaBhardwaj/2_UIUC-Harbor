@@ -57,11 +57,12 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import ListView
 from django.db.models import Count, F
-from .models import Listing
+from .models import Listing, Student
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from .models import Student, Category
-import json
+import json, requests, csv
 
 
 
@@ -299,19 +300,124 @@ def listings_per_category_api(request):
     return JsonResponse(list(data), safe=False)
 
 def api_mime_demo(request):
-    """
-    REQ: Demonstrate both HttpResponse and JsonResponse
-    and observe MIME type differences.
-    """
+
     sample_data = {"message": "Hello, this is a MIME test"}
 
-    # If the user visits /api/test/?type=http
     if request.GET.get('type') == 'http':
-        # Returns as text/html
         return HttpResponse(json.dumps(sample_data))
 
-    # Returns as application/json (Default)
     return JsonResponse(sample_data)
 
 def category_chart_view(request):
     return render(request, "listings/category_chart.html")
+
+from django.db.models import Avg, F
+
+def listings_avg_price_per_category_api(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "GET only"}, status=405)
+
+    data = (
+        Listing.objects.filter(is_active=True, price__isnull=False)
+        .values(category_name=F("category__name"))
+        .annotate(avg_price=Avg("price"))
+        .order_by("category_name")
+    )
+
+    data_list = [
+        {"category_name": d["category_name"], "avg_price": float(d["avg_price"])}
+        for d in data
+    ]
+
+    return JsonResponse(data_list, safe=False)
+
+def price_line_chart_view(request):
+    return render(request, "listings/price_line_chart.html")
+
+def external_api_demo(request):
+    name = request.GET.get("name", "")
+    if not name:
+        return JsonResponse({"error": "Please provide a 'name' parameter"}, status=400)
+
+    try:
+        response = requests.get(
+            "https://api.agify.io",
+            params={"name": name},
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+    result = {
+        "query_name": name,
+        "predicted_age": data.get("age"),
+        "count_of_listings": Listing.objects.filter(seller__first_name__iexact=name).count()
+    }
+
+    return JsonResponse(result)
+
+def export_students_csv(request):
+    now = timezone.now()
+    filename = f"students_{now.strftime('%Y-%m-%d_%H-%M')}.csv"
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(['First Name', 'Last Name', 'Email', 'Verified', 'Created At'])
+
+
+    for student in Student.objects.all().order_by('first_name'):
+        writer.writerow([
+            student.first_name,
+            student.last_name,
+            student.university_email,
+            student.is_verified,
+            student.created_at,
+        ])
+
+    return response
+
+def export_students_json(request):
+    now = timezone.now().strftime("%Y-%m-%d_%H-%M")
+    filename = f"students_{now}.json"
+
+    students_qs = Student.objects.all().order_by('id')
+    students_list = [
+        {
+            "id": s.id,
+            "first_name": s.first_name,
+            "last_name": s.last_name,
+            "email": s.email,
+            "is_verified": s.is_verified
+        }
+        for s in students_qs
+    ]
+
+    data = {
+        "generated_at": timezone.now().isoformat(),
+        "record_count": students_qs.count(),
+        "students": students_list
+    }
+
+    response = JsonResponse(data, json_dumps_params={"indent": 2})
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+def reports_view(request):
+    total_students = Student.objects.count()
+    verified_students = Student.objects.filter(is_verified=True).count()
+    # Group by verified status
+    students_by_verified = Student.objects.values('is_verified').annotate(count=Count('id'))
+    # Convert QuerySet to a dictionary
+    students_dict = {str(item['is_verified']): item['count'] for item in students_by_verified}
+
+    context = {
+        "total_students": total_students,
+        "verified_students": verified_students,
+        "students_by_verified": students_dict
+    }
+    return render(request, "listings/reports.html", context)
