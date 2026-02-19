@@ -3,24 +3,47 @@
 {% block title %}{{ listing.title }} | Harbor{% endblock %}
 
 {% block content %}
-    <h2>{{ listing.title }}</h2>
-
-    <div style="background: #f9f9f9; padding: 15px; margin: 15px 0; border-left: 4px solid #333;">
-        <p><strong>Category:</strong>
-            <a href="{{ listing.category.get_absolute_url }}">{{ listing.category.name }}</a>
-        </p>
-        <p><strong>Seller:</strong>
-            <a href="{{ listing.seller.get_absolute_url }}">{{ listing.seller.first_name }} {{ listing.seller.last_name }}</a>
-        </p>
-        <p><strong>Price:</strong> ${{ listing.price|default:"Free/Negotiable" }}</p>
-        <p><strong>Payment Methods:</strong> {{ listing.get_accepted_payment_display }}</p>
-        <p><strong>Contact:</strong> {{ listing.contact_method }}</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h2 style="margin-bottom: 0.5rem;">{{ listing.title }}</h2>
+            <p style="color: var(--text-secondary);">Posted {{ listing.created_at|timesince }} ago</p>
+        </div>
+        <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">
+            ${{ listing.price|default:"Free" }}
+        </div>
     </div>
 
-    <h3>Description</h3>
-    <p>{{ listing.description }}</p>
+    <div class="stats-card" style="margin-bottom: 2rem;">
+        <div class="grid grid-2">
+            <div>
+                <strong style="color: white; display: block; margin-bottom: 0.5rem;">📂 Category</strong>
+                <a href="{{ listing.category.get_absolute_url }}" style="color: white; opacity: 0.9;">
+                    {{ listing.category.name }} ({{ listing.category.get_category_type_display }})
+                </a>
+            </div>
+            <div>
+                <strong style="color: white; display: block; margin-bottom: 0.5rem;">👤 Seller</strong>
+                <a href="{{ listing.seller.get_absolute_url }}" style="color: white; opacity: 0.9;">
+                    {{ listing.seller.first_name }} {{ listing.seller.last_name }}
+                </a>
+            </div>
+            <div>
+                <strong style="color: white; display: block; margin-bottom: 0.5rem;">💳 Payment</strong>
+                <span style="color: white; opacity: 0.9;">{{ listing.get_accepted_payment_display }}</span>
+            </div>
+            <div>
+                <strong style="color: white; display: block; margin-bottom: 0.5rem;">📞 Contact</strong>
+                <span style="color: white; opacity: 0.9;">{{ listing.contact_method }}</span>
+            </div>
+        </div>
+    </div>
 
-    <p><small>Posted on {{ listing.created_at|date:"F d, Y" }}</small></p>
+    <div class="detail-card">
+        <h3>📝 Description</h3>
+        <p style="line-height: 1.8; font-size: 1.05rem;">{{ listing.description }}</p>
+    </div>
 
-    <p><a href="{% url 'listing_list' %}">&larr; Back to All Listings</a></p>
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="{% url 'listing_list' %}" class="btn">← Back to All Listings</a>
+    </div>
 {% endblock %}

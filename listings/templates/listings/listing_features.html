@@ -3,15 +3,32 @@
 {% block title %}All Listings | Harbor{% endblock %}
 
 {% block content %}
-    <h2>Current Listings</h2>
-    <ul>
+    <h2>🏪 All Listings</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">{{ listings.count }} active listings from verified students</p>
+
+    <div class="grid grid-2">
         {% for item in listings %}
-            <li>
-                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
-                - {{ item.description|truncatewords:15 }}
-            </li>
+            <div class="detail-card" style="cursor: pointer; transition: all 0.3s;">
+                <a href="{{ item.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.3rem;">{{ item.title }}</h3>
+                        <span class="badge">${{ item.price|default:"Free" }}</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin: 0.5rem 0;">
+                        {{ item.description|truncatewords:20 }}
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        <span>📂 {{ item.category.name }}</span>
+                        <span>👤 {{ item.seller.first_name }}</span>
+                        <span>💳 {{ item.get_accepted_payment_display }}</span>
+                    </div>
+                </a>
+            </div>
         {% empty %}
-            <li>The harbor is currently empty.</li>
+            <div class="empty-state">
+                <p style="font-size: 1.2rem;">No listings available right now</p>
+                <p>Be the first to post something!</p>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}

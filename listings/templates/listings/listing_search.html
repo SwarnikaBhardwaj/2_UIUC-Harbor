@@ -3,27 +3,39 @@
 {% block title %}Search Listings | Harbor{% endblock %}
 
 {% block content %}
-    <h2>Search Listings (GET Method)</h2>
-
-    <p><em>Search query appears in URL - shareable link!</em></p>
+    <h2>🔍 Search Listings</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Find services, items, or fundraisers</p>
 
     <form method="GET" action="{% url 'listing_search_get' %}">
-        <input type="text" name="q" value="{{ query }}" placeholder="Search by title or description..." size="40">
-        <button type="submit">Search</button>
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by title or description..." style="flex: 1; min-width: 300px;">
+            <button type="submit">Search</button>
+        </div>
     </form>
+
     {% if query %}
-        <h3>Results for "{{ query }}" ({{ listings.count }} found)</h3>
-    {% else %}
-        <h3>All Listings ({{ listings.count }})</h3>
+        <div style="margin: 2rem 0; padding: 1rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border);">
+            <strong>Results for "{{ query }}":</strong> {{ listings.count }} listing(s) found
+        </div>
     {% endif %}
-    <ul>
-    {% for listing in listings %}
-        <li>
-            <a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a>
-            - {{ listing.category.name }} - ${{ listing.price|default:"Free" }}
-        </li>
-    {% empty %}
-        <li>No listings found.</li>
-    {% endfor %}
-    </ul>
+
+    <div class="grid grid-2" style="margin-top: 2rem;">
+        {% for listing in listings %}
+            <div class="detail-card">
+                <a href="{{ listing.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+                    <h3 style="margin-bottom: 0.5rem;">{{ listing.title }}</h3>
+                    <p style="color: var(--text-secondary);">{{ listing.description|truncatewords:15 }}</p>
+                    <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="badge">${{ listing.price|default:"Free" }}</span>
+                        <span style="font-size: 0.9rem; color: var(--text-secondary);">{{ listing.category.name }}</span>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <p>No listings found matching your search</p>
+                <p style="color: var(--text-secondary);">Try different keywords</p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
