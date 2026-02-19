@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: harbor-marketplace
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn Harbor.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DJANGO_ENV
+        value: prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
