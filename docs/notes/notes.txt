@@ -79,6 +79,17 @@ SECTION 5
 - Results display properly in templates, including when no listings match.
 SECTION 6
 
+Week 4
+- Built internal JSON APIs and integrated Vega-Lite charts for live data visualization.
+- Implemented CSV and JSON export functionality for the Student model with timestamped files.
+- Created a Reports page with summaries, downloads, and external API integration (Agify) combined with internal data.
+- Tested all endpoints to ensure proper functionality and database connectivity.
 
-
+Week 5
+SECTION 1
+- Set up project routing and integrated Django’s built-in authentication system.
+- Created custom login and signup templates with proper URL configuration.
+- Enabled secure logout using a POST request with CSRF protection.
+- Updated the navigation bar to dynamically display links based on authentication status.
+- Applied migrations, configured templates, and verified that login, signup, and logout functionality work correctly without errors.
 
