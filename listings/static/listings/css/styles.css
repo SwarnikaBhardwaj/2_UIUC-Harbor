@@ -509,3 +509,34 @@ tr:hover td {
     .grid-2 { grid-template-columns: repeat(2, 1fr); }
     .grid-3 { grid-template-columns: repeat(3, 1fr); }
 }
+
+.logout-form {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: var(--text-primary);
+    font: inherit;
+    cursor: pointer;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.logout-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.logout-btn:hover {
+    background: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    color: var(--secondary);
+}

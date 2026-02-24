@@ -52,7 +52,7 @@
 #
 
 from django.http import HttpResponse,JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views import View
 from django.views.generic import ListView
 from django.db.models import Count, F
@@ -62,6 +62,10 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
 from .models import Student, Category
 import json, requests, csv
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 
 
 
@@ -79,6 +83,7 @@ def listing_manual_view(request):
         """
     return HttpResponse(html)
 
+@login_required
 def listing_render_view(request):
     listings = Listing.objects.filter(is_active=True)
     return render(
@@ -311,6 +316,7 @@ def listings_avg_price_per_category_api(request):
 def price_line_chart_view(request):
     return render(request, "listings/price_line_chart.html")
 
+@login_required
 def external_api_demo(request):
     name = request.GET.get("name", "")
     if not name:
@@ -384,3 +390,14 @@ def reports_view(request):
         "students_by_verified": students_dict
     }
     return render(request, "listings/reports.html", context)
+
+def signup_view(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "registration/signup.html", {"form": form})

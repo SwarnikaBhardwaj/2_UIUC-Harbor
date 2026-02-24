@@ -14,15 +14,27 @@
     </header>
 
 
-    <nav class="navbar">
-        <a href="{% url 'home' %}">Home</a>
+<nav class="navbar">
+    <a href="{% url 'home' %}">Home</a>
+
+    {% if user.is_authenticated %}
         <a href="{% url 'listing_list' %}">Listings</a>
         <a href="{% url 'student_list' %}">Students</a>
         <a href="{% url 'category_list' %}">Categories</a>
-        <a href="{% url 'listing_search_get' %}">Search</a>
-        <a href="{% url 'listing_filter_cbv' %}">Filter</a>
         <a href="{% url 'aggregation_stats' %}">Stats</a>
-    </nav>
+
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                Logout
+            </button>
+        </form>
+
+    {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Sign Up</a>
+    {% endif %}
+</nav>
 
     <main class="container">
         {% block content %}
