@@ -358,7 +358,7 @@ def export_students_json(request):
             "id": s.id,
             "first_name": s.first_name,
             "last_name": s.last_name,
-            "email": s.email,
+            "email": s.university_email,
             "is_verified": s.is_verified
         }
         for s in students_qs
