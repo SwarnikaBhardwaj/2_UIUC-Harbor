@@ -23,16 +23,16 @@
         <a href="{% url 'category_list' %}">Categories</a>
         <a href="{% url 'aggregation_stats' %}">Stats</a>
 
-        <form method="post" action="{% url 'logout' %}" class="logout-form">
+        <form method="post" action="{% url 'account_logout' %}" style="display: inline; margin: 0;">
             {% csrf_token %}
-            <button type="submit" class="logout-btn">
-                Logout
+            <button type="submit" style="background: rgba(239, 68, 68, 0.9); padding: 0.6rem 1.2rem; border-radius: 50px; border: none; color: white; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;">
+                Logout ({{ user.username }})
             </button>
         </form>
 
     {% else %}
-        <a href="{% url 'login' %}">Login</a>
-        <a href="{% url 'signup' %}">Sign Up</a>
+        <a href="{% url 'account_login' %}">Login</a>
+        <a href="{% url 'account_signup' %}">Sign Up</a>
     {% endif %}
 </nav>
 

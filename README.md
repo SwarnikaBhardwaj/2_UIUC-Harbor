@@ -64,3 +64,27 @@ This project provides a public API to allow external applications to access and 
 	- Created Header and Footer Bar in navy blue 
 	- Changed hyperlinks for pages into neat tabs
 	- Made listings tabular in look as per the wireframe
+
+## Deployment
+
+**Live URL:** https://your-app-name.onrender.com
+**Deployed on:** Render.com (Free Tier)
+
+**Environment:**
+- Python 3.11
+- Django 5.2
+- Gunicorn WSGI server
+- WhiteNoise for static files
+- SQLite database
+
+**Deployment Process:**
+1. Code pushed to GitHub
+2. Render automatically builds and deploys
+3. Static files collected via WhiteNoise
+4. Migrations run automatically
+5. App served via Gunicorn
+
+**Environment Variables:**
+- DJANGO_ENV=prod
+- DEBUG=False
+- SECRET_KEY (auto-generated)

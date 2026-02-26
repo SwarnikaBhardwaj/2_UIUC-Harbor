@@ -4,3 +4,5 @@ whitenoise==6.11.0
 gunicorn==23.0.0
 matplotlib==3.10.0
 requests==2.32.4
+django-allauth==0.57.0
+
