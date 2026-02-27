@@ -44,4 +44,4 @@ CORS_ALLOWED_ORIGINS = [
 
 # If you want to temporarily allow ALL external websites
 # (NOT recommended for real production):
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
