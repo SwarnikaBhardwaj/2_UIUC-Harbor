@@ -285,12 +285,7 @@ def listings_per_category_api(request):
         .annotate(listing_count=Count("id"))
         .order_by("category_name")
     )
-    response =  JsonResponse(list(data), safe=False)
-    # 3.2
-    response["Access-Control-Allow-Origin"] = "https://vega.github.io"
-    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-    response["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+    return JsonResponse(list(data), safe=False)
 
 def api_mime_demo(request):
     sample_data = {"message": "Hello, this is a MIME test"}
