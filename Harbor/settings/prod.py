@@ -29,19 +29,3 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# -------------------------------------------------------------------
-# CORS CONFIGURATION
-# -------------------------------------------------------------------
-
-# CORS (Cross-Origin Resource Sharing) controls which external
-# websites are allowed to make requests to this backend API.
-
-# Only allow these specific domains to access your API
-#CORS_ALLOWED_ORIGINS = [
-#    "https://vega.github.io",
-#    "https://vega.github.io/editor",
-#]
-
-# If you want to temporarily allow ALL external websites
-# (NOT recommended for real production):
-CORS_ALLOW_ALL_ORIGINS = True
