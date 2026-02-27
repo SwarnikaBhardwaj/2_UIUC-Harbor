@@ -51,6 +51,10 @@ urlpatterns = [
     path('api/listings-per-category/',
          login_required(views.listings_per_category_api),
          name='api_listings_per_category'),
+    # 3.1 (2/26)
+    path('api/public/listings-per-category/',
+        views.listings_per_category_api,
+        name='public_api_listings_per_category'),
 
     path('api/listings-avg-price-per-category/',
          login_required(views.listings_avg_price_per_category_api),
