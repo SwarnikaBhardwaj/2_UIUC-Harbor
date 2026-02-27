@@ -288,6 +288,8 @@ def listings_per_category_api(request):
     response =  JsonResponse(list(data), safe=False)
     # 3.2
     response["Access-Control-Allow-Origin"] = "https://vega.github.io"
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
 def api_mime_demo(request):
