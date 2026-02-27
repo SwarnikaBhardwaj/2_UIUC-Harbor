@@ -1,8 +1,7 @@
-Django==5.2
-python-decouple==3.8
-whitenoise==6.11.0
-gunicorn==23.0.0
-matplotlib==3.10.0
-requests==2.32.4
-django-allauth==0.57.0
-
+asgiref @ file:///Users/ec2-user/croot/asgiref_1771842733640/work
+Django @ file:///Users/ec2-user/croot/django_1771599835551/work
+django-cors-headers==4.9.0
+packaging @ file:///opt/miniconda3/conda-bld/packaging_1761049079023/work
+setuptools==80.10.1
+sqlparse @ file:///opt/miniconda3/conda-bld/sqlparse_1764240029253/work
+wheel==0.46.3

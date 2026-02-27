@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    # 3.2
+    'corsheaders'
 ]
 
 # Site ID for django.contrib.sites

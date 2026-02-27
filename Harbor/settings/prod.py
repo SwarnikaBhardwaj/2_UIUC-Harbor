@@ -18,6 +18,9 @@ if additional_hosts:
 
 # Security settings for production
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+# 3.2
+CORS_ALLOWED_ORIGINS = ["https://vega.github.io"]
+
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
 SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
