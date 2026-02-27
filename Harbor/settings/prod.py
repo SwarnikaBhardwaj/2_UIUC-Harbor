@@ -39,7 +39,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Only allow these specific domains to access your API
 CORS_ALLOWED_ORIGINS = [
     "https://vega.github.io",
-#    "https://vega.github.io/editor",
+    "https://vega.github.io/editor",
 ]
 
 # If you want to temporarily allow ALL external websites
