@@ -27,3 +27,4 @@ sqlparse @ file:///opt/miniconda3/conda-bld/sqlparse_1764240029253/work
 urllib3==2.6.3
 wheel==0.46.3
 whitenoise==6.12.0
+google-genai==1.66.0

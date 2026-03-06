@@ -65,6 +65,8 @@ import json, requests, csv
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.conf import settings
+from google import genai
 
 
 
@@ -390,6 +392,29 @@ def reports_view(request):
         "students_by_verified": students_dict
     }
     return render(request, "listings/reports.html", context)
+
+def gemini_ai_demo(request):
+    user_text = request.GET.get("text", "")
+    if not user_text:
+        return JsonResponse({"error": "Please provide a 'text' parameter"}, status=400)
+    try:
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        prompt = f"""
+        Summarize the following text in 3 bullet points:
+        {user_text}
+        """
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        result = {
+            "input": user_text,
+            "summary": response.text
+        }
+        return JsonResponse(result)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 def signup_view(request):
     if request.method == "POST":
