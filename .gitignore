@@ -31,3 +31,13 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Machine Learning / LLM
+.cache/
+huggingface/
+models/
+*.bin
+*.pth
+*.pt
+*.safetensors
+.ipynb_checkpoints/
