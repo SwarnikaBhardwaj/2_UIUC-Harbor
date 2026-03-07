@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}AI Description Generator | Harbor{% endblock %}
+
+{% block content %}
+<div style="max-width: 700px; margin: 0 auto;">
+    <h2>🤖 AI Description Generator</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+        Using local HuggingFace model (google/flan-t5-small)
+    </p>
+    
+    <div class="detail-card">
+        <form id="ai-form">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Title *</label>
+                <input type="text" name="title" required placeholder="e.g., Python Tutoring" style="width: 100%;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Category *</label>
+                <select name="category" required style="width: 100%; padding: 0.8rem; background: var(--bg-main); border: 2px solid var(--border); border-radius: 12px; color: var(--text-primary);">
+                    <option value="">Select...</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Price ($) *</label>
+                <input type="number" name="price" required step="0.01" min="0" placeholder="25.00" style="width: 100%;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Basic Info *</label>
+                <textarea name="basic_info" required rows="3" placeholder="CS student, helped 50+ students, flexible schedule" style="width: 100%; padding: 0.8rem; background: var(--bg-main); border: 2px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: inherit;"></textarea>
+            </div>
+            
+            <button type="submit" id="generate-btn" style="width: 100%;">
+                ✨ Generate Description
+            </button>
+        </form>
+    </div>
+    
+    <div id="loading" style="display: none; text-align: center; margin: 2rem 0;">
+        <div style="font-size: 3rem; animation: spin 1s linear infinite;">🤖</div>
+        <p>Local AI is generating...</p>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">First time may take 30-60s to download model weights</p>
+    </div>
+    
+    <div id="result" style="display: none; margin-top: 2rem;">
+        <div class="stats-card">
+            <h3>🎉 Generated Description</h3>
+            <p id="description" style="font-size: 1.1rem; line-height: 1.8; margin: 1rem 0;"></p>
+            <p style="font-size: 0.9rem; opacity: 0.8;">
+                Source: <span id="source"></span>
+            </p>
+            <button onclick="copy()" class="btn" style="background: var(--success); margin-top: 1rem;">
+                📋 Copy
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.getElementById('ai-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const formData = new FormData(form);
+    const btn = document.getElementById('generate-btn');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    
+    btn.disabled = true;
+    loading.style.display = 'block';
+    result.style.display = 'none';
+    
+    try {
+        const response = await fetch('{% url "create_local_ai" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {'X-CSRFToken': formData.get('csrfmiddlewaretoken')}
+        });
+        
+        const data = await response.json();
+        
+        if (data.description) {
+            document.getElementById('description').textContent = data.description;
+            document.getElementById('source').textContent = data.source + ' - ' + data.model;
+            result.style.display = 'block';
+        } else {
+            alert('Error: ' + (data.error || 'Generation failed'));
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        loading.style.display = 'none';
+        btn.disabled = false;
+    }
+});
+
+function copy() {
+    const text = document.getElementById('description').textContent;
+    navigator.clipboard.writeText(text);
+    alert('📋 Copied!');
+}
+</script>
+{% endblock %}

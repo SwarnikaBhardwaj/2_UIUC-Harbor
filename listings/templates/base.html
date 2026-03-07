@@ -19,6 +19,7 @@
 
     {% if user.is_authenticated %}
         <a href="{% url 'listing_list' %}">Listings</a>
+        <a href="{% url 'create_local_ai' %}"> AI Generator</a>
         <a href="{% url 'student_list' %}">Students</a>
         <a href="{% url 'category_list' %}">Categories</a>
         <a href="{% url 'aggregation_stats' %}">Stats</a>
