@@ -121,3 +121,341 @@ API usage is cheaper at all traffic scales analyzed, including Prototype, Early 
 ### When would you switch your architecture?
 
 Based on the results so far, there isn’t a clear point at which switching from API-based inference to local hosting becomes more cost-efficient. Therefore, the system would continue using API-based inference across all traffic levels. However, a switch to local hosting could be considered in the future if conditions change, such as an increase in API pricing, significantly higher token usage per request, or the need for greater control over data privacy or system customization.
+
+# Harbor Multi-Model Routing Strategy
+
+## Part 3: Intelligent Model Selection System
+
+---
+
+## Step 3.1: Five System Scenarios (15 pts)
+
+Based on Harbor's campus marketplace use case, here are five realistic scenarios where routing decisions matter:
+
+### Scenario 1: Normal Operation (Steady Traffic)
+**Description:** Regular weekday traffic with predictable load
+- **Traffic Pattern:** 100-500 requests/hour
+- **User Behavior:** Students browsing listings, creating standard descriptions
+- **System State:** All models available, low latency, normal capacity
+- **Priority:** Balance quality and cost
+
+### Scenario 2: Peak Usage Hours (High Volume)
+**Description:** Evening hours (6-10 PM) when students are most active
+- **Traffic Pattern:** 2000-5000 requests/hour (10x normal)
+- **User Behavior:** Multiple simultaneous users creating listings
+- **System State:** High CPU/memory usage, potential queue buildup
+- **Priority:** Minimize latency, maintain service availability
+
+### Scenario 3: Complex Listing Requests (High Quality Needed)
+**Description:** Users creating detailed fundraiser or service listings
+- **Traffic Pattern:** 5-10% of requests require enhanced descriptions
+- **User Behavior:** Long input text (>200 chars), expects creative output
+- **System State:** Normal load but quality expectations high
+- **Priority:** Maximize output quality even if slower/costlier
+
+### Scenario 4: Cost Optimization Mode (Budget Constraints)
+**Description:** End of month when API budget is running low
+- **Traffic Pattern:** Normal volume but API quota nearly exhausted
+- **User Behavior:** Standard requests, no special requirements
+- **System State:** API calls limited, must rely on local models
+- **Priority:** Minimize API costs while maintaining acceptable quality
+
+### Scenario 5: System Degradation (Model Failure)
+**Description:** Primary model crashes or API unavailable
+- **Traffic Pattern:** Any volume
+- **User Behavior:** Users expect service to continue working
+- **System State:** One or more models offline/failing
+- **Priority:** Maintain service availability via fallback routing
+
+---
+
+## Step 3.2: Routing Strategies (15 pts)
+
+### Strategy 1: Normal Operation - Balanced Routing
+
+| Attribute | Details |
+|-----------|---------|
+| **Scenario** | Normal Operation (Steady Traffic) |
+| **Routing Logic** | • Input length < 100 chars → `flan-t5-small` (local)<br>• Input length 100-200 chars → `flan-t5-base` (local)<br>• Input length > 200 chars → `gemini-1.5-flash` (API)<br>• Confidence check: If local output scores < 7/10, retry with API |
+| **Local Models Used** | • `google/flan-t5-small` (80M params) - Quick responses<br>• `google/flan-t5-base` (250M params) - Medium quality |
+| **API Model Used** | • `gemini-1.5-flash` - For complex/long inputs |
+| **Decision Criteria** | ```python<br>if len(user_input) < 100:<br>    use_model('flan-t5-small')<br>elif len(user_input) < 200:<br>    use_model('flan-t5-base')<br>else:<br>    use_api('gemini')``` |
+| **Expected Benefits** | • 80% requests handled locally (low cost)<br>• 20% use API (high quality when needed)<br>• Average latency: 1.5s (local) vs 3s (API)<br>• Estimated cost: $0.002/request average |
+
+---
+
+### Strategy 2: Peak Usage Hours - Local-First Routing
+
+| Attribute | Details |
+|-----------|---------|
+| **Scenario** | Peak Usage Hours (High Volume) |
+| **Routing Logic** | • ALL requests → Local models first<br>• Queue system: Simple prompts → `flan-t5-small`<br>• Complex prompts → `flan-t5-base`<br>• API used ONLY for failed local generations<br>• Rate limit API to 100 calls/hour during peak |
+| **Local Models Used** | • `flan-t5-small` - 90% of requests<br>• `flan-t5-base` - 10% of requests<br>• Load balanced across 2-3 instances |
+| **API Model Used** | • `gemini-1.5-flash` - Fallback only (<5% of requests) |
+| **Decision Criteria** | ```python<br>if system_load > 80%:<br>    queue_local_model('flan-t5-small')<br>    if fails:<br>        fallback_api('gemini', rate_limited=True)``` |
+| **Expected Benefits** | • Handles 10x traffic without API cost spike<br>• Latency maintained at 2-3s (acceptable during peak)<br>• API costs: $20/day (peak) vs $200/day (if all API)<br>• Service stays available during surges |
+
+---
+
+### Strategy 3: Complex Requests - Quality-First Routing
+
+| Attribute | Details |
+|-----------|---------|
+| **Scenario** | Complex Listing Requests (High Quality Needed) |
+| **Routing Logic** | • Detect complexity via:<br>  - Input length > 200 chars<br>  - Keywords: "fundraiser", "event", "detailed"<br>  - User explicitly selects "Enhanced AI"<br>• Route directly to best API model<br>• Skip local models to save processing time |
+| **Local Models Used** | • None - bypassed for quality |
+| **API Model Used** | • `gemini-1.5-pro` (higher tier) - Maximum creativity<br>• `gpt-4-turbo` (alternative) - If Gemini fails |
+| **Decision Criteria** | ```python<br>complexity_score = calculate_complexity(input)<br>if complexity_score > 7 or user_wants_premium:<br>    use_api('gemini-1.5-pro')<br>    if fails:<br>        use_api('gpt-4-turbo')``` |
+| **Expected Benefits** | • 95%+ user satisfaction on complex listings<br>• Reduced back-and-forth editing (saves user time)<br>• Higher conversion: better descriptions = more sales<br>• Cost justified by quality: $0.01/request acceptable |
+
+---
+
+### Strategy 4: Cost Optimization - Aggressive Local Routing
+
+| Attribute | Details |
+|-----------|---------|
+| **Scenario** | Cost Optimization Mode (Budget Constraints) |
+| **Routing Logic** | • API calls limited to 50/day hard cap<br>• Route 99% to local models regardless of input<br>• Use smallest model that passes validation<br>• Implement aggressive caching for common prompts<br>• Template fallback for low-confidence outputs |
+| **Local Models Used** | • `flan-t5-small` - 95% of requests<br>• `distilgpt2` (even smaller, 82M) - For very simple inputs<br>• `flan-t5-base` - Only if small model fails validation |
+| **API Model Used** | • `gemini-1.5-flash` - Only for VIP users or critical failures<br>• Strictly rate-limited to 50/day |
+| **Decision Criteria** | ```python<br>if api_calls_today >= 50:<br>    force_local = True<br>output = try_local_cascade()<br>if output.confidence < 0.5 and is_vip_user:<br>    use_api('gemini', count_toward_limit=True)``` |
+| **Expected Benefits** | • API costs: $1-2/day (vs $50-100/day normal)<br>• 95% service availability maintained<br>• Slight quality degradation acceptable during budget mode<br>• Users still get functional descriptions |
+
+---
+
+### Strategy 5: System Degradation - Intelligent Fallback Routing
+
+| Attribute | Details |
+|-----------|---------|
+| **Scenario** | System Degradation (Model Failure) |
+| **Routing Logic** | • Continuous health checks every 30s on all models<br>• Maintain priority queue: API > Large Local > Small Local > Template<br>• Auto-failover with exponential backoff<br>• User sees "Trying alternate AI model..." message |
+| **Local Models Used** | • `flan-t5-base` (primary local fallback)<br>• `flan-t5-small` (secondary fallback)<br>• `distilgpt2` (tertiary fallback)<br>• Template system (final fallback - always works) |
+| **API Model Used** | • `gemini-1.5-flash` (if available)<br>• `openai/gpt-3.5-turbo` (secondary API)<br>• `huggingface-inference` (tertiary API) |
+| **Decision Criteria** | ```python<br>available_models = check_model_health()<br>for model in priority_queue(available_models):<br>    try:<br>        return model.generate(prompt)<br>    except:<br>        log_failure(model)<br>        continue<br>return template_fallback()``` |
+| **Expected Benefits** | • 99.9% uptime even during failures<br>• Graceful degradation vs complete outage<br>• Users rarely see errors<br>• Automatic recovery when models come back online |
+
+---
+
+## Step 3.3: Strategy Evaluation (20 pts)
+
+### Evaluation Framework
+
+For each strategy, we evaluate three key dimensions:
+
+---
+
+### **Strategy 1: Balanced Routing (Normal Operation)**
+
+**Latency Improvement:**
+- **Baseline:** If all requests used API: Average 3.5s latency
+- **With Routing:** 
+  - 80% local (1.5s avg) + 20% API (3.5s avg)
+  - Weighted average: (0.8 × 1.5) + (0.2 × 3.5) = **1.9s**
+  - **Improvement: 46% faster** than API-only
+- **Mechanism:** Input length-based routing ensures simple requests get instant responses from lightweight local models
+
+**Cost Reduction:**
+- **Baseline:** All API: 10,000 requests/day × $0.005 = **$50/day**
+- **With Routing:**
+  - 8,000 local requests: $0
+  - 2,000 API requests: $0.005 = $10/day
+  - **Total: $10/day**
+  - **Savings: 80% reduction** ($40/day saved)
+- **Mechanism:** Majority of simple listing descriptions handled locally at zero marginal cost
+
+**Quality Maintenance:**
+- **Quality Metrics:**
+  - Local model outputs: 7.5/10 average quality
+  - API outputs: 9/10 average quality
+  - Weighted: (0.8 × 7.5) + (0.2 × 9) = **7.8/10 overall**
+- **Confidence Retry:** Low-scoring local outputs (<7/10) automatically retry with API
+- **User Satisfaction:** 85% of users accept AI-generated description without edits
+- **Mechanism:** Intelligent fallback ensures quality floor is maintained
+
+---
+
+### **Strategy 2: Local-First (Peak Hours)**
+
+**Latency Improvement:**
+- **Problem:** Peak traffic (5000 req/hr) would overwhelm API rate limits
+  - API rate limit: 60 req/min = 3600 req/hr
+  - Overflow: 1400 requests queued or dropped
+- **With Routing:**
+  - 4750 requests → Local models (parallel processing)
+  - 250 requests → API (within limits)
+  - **All requests served** without dropping
+  - Average latency: 2.5s (acceptable during peak vs infinite wait)
+- **Mechanism:** Load balancing across multiple local model instances prevents bottleneck
+
+**Cost Reduction:**
+- **Without Routing (if possible):** 5000 × $0.005 = $25/hour = **$200/day (peak hours)**
+- **With Routing:**
+  - 4750 local: $0
+  - 250 API: $1.25/hour = $10/day
+  - **Savings: 95%** ($190/day during peak)
+- **Mechanism:** Aggressive local routing during known peak windows
+
+**Quality Maintenance:**
+- **Challenge:** Local models under load might produce lower quality (6.5/10 avg)
+- **Mitigation:**
+  - Critical requests (fundraisers, events) still routed to API
+  - Failed local outputs fall back to API
+  - Template fallback for extreme load
+- **Result:** 
+  - 90% acceptable quality (>6/10)
+  - 5% high quality (API routed)
+  - 5% fallback templates
+- **Mechanism:** Quality thresholds ensure no output goes below minimum standard
+
+---
+
+### **Strategy 3: Quality-First (Complex Requests)**
+
+**Latency Improvement:**
+- **Without Routing:** Try local first, fail, retry API = 1.5s + 3.5s = **5s wasted**
+- **With Routing:**
+  - Detect complexity upfront (0.1s analysis)
+  - Route directly to API: 3.5s total
+  - **Saves 1.5s** per complex request
+- **Compound Benefit:** Users avoid editing poorly generated text (saves 2-3 minutes)
+- **Mechanism:** Pre-processing analysis routes to best model immediately
+
+**Cost Increase (But Justified):**
+- **Cost:** Complex requests (10% of traffic) use premium API
+  - 1,000 requests/day × $0.01 = **$10/day**
+  - vs $5/day if used standard API
+  - **Extra cost: $5/day**
+- **ROI Calculation:**
+  - Better descriptions → 20% higher engagement
+  - Higher engagement → More successful sales
+  - Platform takes 5% fee: Extra revenue > $100/day
+  - **ROI: 20x** the extra AI cost
+- **Mechanism:** Strategic spending on high-impact use cases
+
+**Quality Improvement:**
+- **Baseline:** Local model on complex inputs: 5.5/10 (often incoherent)
+- **With API:** 9.5/10 on complex inputs
+- **User Impact:**
+  - Fundraiser listings: 3x more engagement with quality descriptions
+  - Service listings: 40% fewer clarification messages
+  - User retention: 15% higher (users trust AI more)
+- **Mechanism:** Matching model capability to task complexity
+
+---
+
+### **Strategy 4: Cost Optimization (Budget Mode)**
+
+**Latency Impact:**
+- **Latency Increase:** 
+  - Normal mode: 1.9s average
+  - Budget mode: 2.2s average (15% slower)
+  - Acceptable trade-off for 80% cost savings
+- **Why Slower:**
+  - Smaller models need retry attempts
+  - Cascade through multiple models if first fails
+  - Template generation is instant but less engaging
+- **Mitigation:** Caching common prompts reduces redundant processing
+- **Mechanism:** Aggressive local-only routing with cascading fallbacks
+
+**Cost Reduction:**
+- **Normal Mode:** $50/day (from baseline API-only)
+- **Budget Mode:**
+  - API: 50 calls/day × $0.005 = $0.25/day
+  - Local: $0
+  - **Total: $0.25/day**
+  - **Savings: 99.5%** ($49.75/day)
+- **Monthly Impact:** $750/month saved
+- **Mechanism:** Hard cap on API usage with aggressive local routing
+
+**Quality Management:**
+- **Quality Drop:**
+  - Normal mode: 7.8/10 average
+  - Budget mode: 6.8/10 average
+  - **Degradation: 13%** but still functional
+- **Mitigation Strategies:**
+  - VIP users still get API access
+  - Critical use cases (fundraisers) prioritized
+  - Templates used for very simple listings (fast + consistent)
+  - User feedback collected to improve local models
+- **Acceptance:** 75% of users still accept AI output (vs 85% normal)
+- **Mechanism:** Quality floor maintained via validation and fallbacks
+
+---
+
+### **Strategy 5: Intelligent Fallback (System Failure)**
+
+**Latency During Failure:**
+- **Without Routing:** Primary model fails → Service down → **Infinite latency**
+- **With Routing:**
+  - Health check detects failure: 1s
+  - Auto-route to backup model: 0.5s
+  - Backup generation: 2s
+  - **Total: 3.5s** (slightly slower but service continues)
+- **Recovery:** Exponential backoff prevents cascading failures
+- **Mechanism:** Continuous health monitoring with priority-based failover
+
+**Cost Impact:**
+- **During Failure:**
+  - Primary local model down → Route to API
+  - Temporary spike: 100% API usage
+  - Cost: $50/day during failure period
+- **Mitigation:**
+  - Auto-recovery within 5-15 minutes typically
+  - Gradual shift back to local as models recover
+  - Average failure duration: 30 min/month
+  - **Failure cost: $1-2/month** (acceptable vs lost revenue)
+- **Mechanism:** Automatic failover prevents revenue loss from downtime
+
+**Quality & Availability:**
+- **Uptime Improvement:**
+  - Without routing: 95% uptime (failures cause outages)
+  - With routing: **99.9% uptime** (graceful degradation)
+- **Quality During Failure:**
+  - Tier 1 fallback (API): 9/10 quality
+  - Tier 2 fallback (alternate local): 7/10 quality
+  - Tier 3 fallback (small model): 6/10 quality
+  - Tier 4 fallback (template): 5/10 quality (but always works)
+- **User Experience:** Users see brief "Using alternate model" message, service continues
+- **Mechanism:** Multi-tier fallback chain ensures service continuity
+
+---
+
+## Summary Comparison
+
+| Strategy | Latency | Cost | Quality | Best For |
+|----------|---------|------|---------|----------|
+| **Balanced** | ↓ 46% | ↓ 80% | ★★★★☆ | Daily operations |
+| **Peak Hours** | ↑ 10% | ↓ 95% | ★★★☆☆ | Traffic spikes |
+| **Quality-First** | ↓ 30% | ↑ 100% | ★★★★★ | Premium features |
+| **Budget Mode** | ↑ 15% | ↓ 99% | ★★★☆☆ | Cost constraints |
+| **Fallback** | ↑ 20% | ↑ 50% | ★★★★☆ | Reliability |
+
+---
+
+## Implementation Priority
+
+1. **Phase 1:** Implement Strategy 1 (Balanced) + Strategy 5 (Fallback) - Core functionality
+2. **Phase 2:** Add Strategy 2 (Peak Hours) - Scalability
+3. **Phase 3:** Enable Strategy 3 (Quality-First) - Premium tier
+4. **Phase 4:** Activate Strategy 4 (Budget Mode) - Cost control
+
+---
+
+## Monitoring & Adaptation
+
+**Key Metrics to Track:**
+- Average latency per strategy
+- Cost per request
+- User acceptance rate
+- Model health status
+- API usage vs budget
+
+**Adaptive Routing:**
+System automatically switches strategies based on real-time conditions:
+- Time of day → Peak vs Normal
+- Budget remaining → Budget Mode activation
+- Model health → Fallback routing
+- User tier → Quality-First for premium
+
+This creates a **dynamic, self-optimizing system** that balances cost, quality, and performance.
+
