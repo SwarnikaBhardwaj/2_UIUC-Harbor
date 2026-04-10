@@ -66,8 +66,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from google import genai
+from django.views.decorators.http import require_http_methods
 
+from django.contrib import messages
 
 
 
@@ -491,3 +492,68 @@ def create_with_local_ai(request):
     # GET - show form
     categories = Category.objects.all()
     return render(request, 'listings/create_local_ai.html', {'categories': categories})
+
+
+@login_required
+@require_http_methods(["POST"])
+def save_listing(request):
+    """
+    Save the AI-generated listing to the database.
+    Expects POST data: title, category, price, description,
+                       contact_method, accepted_payment
+
+    The seller is linked via the Student profile of the logged-in user.
+    Requires the logged-in User to have a linked Student record.
+    """
+    title = request.POST.get('title', '').strip()
+    category_id = request.POST.get('category')
+    price = request.POST.get('price', '') or None
+    description = request.POST.get('description', '').strip()
+    contact_method = request.POST.get('contact_method', '').strip()
+    accepted_payment = request.POST.get('accepted_payment', 'VENMO')
+
+    # Basic validation
+    if not all([title, category_id, description]):
+        messages.error(request, 'Missing required fields.')
+        return redirect('create_local_ai')
+
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        messages.error(request, 'Invalid category.')
+        return redirect('create_local_ai')
+
+    # Find the Student linked to this user
+    # Harbor's Student model uses university_email; try matching by username or email
+    try:
+        # Try matching student by email == user's email
+        student = Student.objects.get(university_email=request.user.email)
+    except Student.DoesNotExist:
+        # Fallback: first student (for dev/demo only — swap for proper auth link)
+        student = Student.objects.first()
+        if not student:
+            messages.error(request, 'No student profile found. Please contact support.')
+            return redirect('create_local_ai')
+
+    price_val = None
+    if price:
+        try:
+            price_val = float(price)
+        except ValueError:
+            pass
+
+    # Create the listing
+    listing = Listing.objects.create(
+        seller=student,
+        category=category,
+        title=title,
+        description=description,
+        price=price_val,
+        contact_method=contact_method or 'Contact via Harbor',
+        accepted_payment=accepted_payment,
+        is_active=True,
+    )
+
+    messages.success(request, f'Listing "{listing.title}" posted successfully!')
+    return redirect('listing_detail', pk=listing.pk)
+

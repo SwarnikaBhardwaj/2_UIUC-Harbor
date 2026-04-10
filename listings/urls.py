@@ -91,4 +91,5 @@ urlpatterns = [
 
     path("gemini-ai/", gemini_ai_demo, name="gemini_ai_demo"),
     path('create-with-local-ai/', views.create_with_local_ai, name='create_local_ai'),
+    path('save-listing/', views.save_listing, name='save_listing'),
 ]
