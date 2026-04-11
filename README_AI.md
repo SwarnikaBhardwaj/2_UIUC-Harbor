@@ -13,7 +13,8 @@ Harbor uses AI to enhance the student marketplace experience through:
 ### 1. Data Input: User Data Capture
 
 **Input Sources:**
-
+The process begins when a user provides the following structured data via the create_local_ai.html interface:
+Title, Category, Price, and Basic details.
 1. **AI Description Generator** (`/listings/create-with-ai/`)
    - User provides: Title, Category, Price, Basic details
    - Method: Django form with POST request
@@ -49,6 +50,15 @@ def create_listing_with_ai(request):
 ### 2. Preprocessing: Data Cleaning & Formatting
 
 **Input Sanitization Pipeline:**
+Before reaching the model, the input is passed through a sanitization pipeline:
+
+HTML Removal: Uses bleach to strip potential XSS vectors.
+
+Pattern Blocking: Regex checks for malicious strings.
+
+Prompt Construction: The raw data is wrapped in a "Instruction Prompt" formatted for the model:
+
+"Create a professional marketplace listing description... Write 2-3 engaging sentences."
 
 **Step 1: HTML/Script Removal**
 ```python
@@ -105,7 +115,7 @@ Description:"""
 ### 3. Safety Guardrails
 
 **Pre-LLM Input Validation:**
-
+The system uses the google/flan-t5-small model. The sanitized prompt is tokenized and passed through the model using beam search (num_beams=4) to ensure the highest probability word sequences, resulting in professional-sounding prose.
 **A. Pattern Blocking**
 ```python
 import re
@@ -135,6 +145,7 @@ def is_safe_input(text: str) -> bool:
 | Total Prompt | ~400 tokens | Model context limit |
 
 **Post-LLM Output Validation:**
+The generated response returns to the user via an AJAX call. Before display, the text is validated for length and structure. If validation fails, the system uses a Three-Tier Fallback to ensure the user always receives a usable description.
 
 **A. Structure Validation**
 ```python
@@ -295,16 +306,6 @@ def create_listing_with_ai(request):
 | Fallback | Template Safety | Always returns valid text |
 | Errors | Graceful Degradation | 3-tier fallback system |
 
----
-
-## Performance Targets
-
-| Metric | Target | Actual |
-|--------|--------|--------|
-| Local Model Response Time | < 2s | ~1.5s |
-| API Response Time | < 5s | ~3s |
-| Success Rate | > 95% | 98% (with fallbacks) |
-| User Acceptance | > 80% | N/A (not yet measured) |
 
 ---
 
@@ -344,6 +345,81 @@ My schedule is flexible and I can meet at times that work best for you.
 **Result:** User receives description, can edit before posting
 
 ---
+## Architecture Explanation 
+Harbor utilizes a Local-First Inference Architecture with an External API Redundancy Layer. This ensures that the application remains functional even without internet connectivity or API quota availability.
+
+### System Diagram
+The Architectural Flow:
+
+**Client Tier:**  User submits listing data via a standard HTML5 form.
+
+**Logic Tier (Django):** The view handles authentication and triggers the local_llm.py utility.
+
+**AI Utility Layer:** Input is sanitized using `bleach` before being passed to the model.
+
+**Local LLM:** The transformers library loads flan-t5-small into the server's RAM.
+
+**Fallback Logic:** If the local model fails validation, the request is routed to the Gemini API.
+
+**Data Tier:** Final validated descriptions are returned to the client for user approval.
+
+**System Flow Diagram:**
+
+User Input  
+→ Django View  
+→ Input Sanitization  
+→ Local LLM (flan-t5-small)  
+→ Output Validation  
+→ (Fallback: Gemini API → Template)  
+→ JSON Response → User Interface
+
+## Model Selection Rationale (Step 2.3)
+
+The selection of our AI stack is directly informed by performance benchmarks and latency experiments conducted in Assignment 6 and Assignment 7.
+
+### 1. Selected Model: `google/flan-t5-small`
+
+**A6 Connection:**  
+In A6, I tested various generative models. I found that while larger models were more creative, the T5 "Instruction-tuned" architecture was superior at following the specific marketplace formatting required.
+
+**A7 Connection:**  
+During A7 testing, I evaluated Latency vs. Quality. This model achieved an inference time of ~1.5s on a standard CPU. This was chosen over larger models (like Mistral-7B) which caused 30s+ bottlenecks on local hardware.
+
+---
+
+### 2. Alternatives Considered
+
+- **Mistral-7B:** Dismissed as "too heavy" for local deployment (required 12GB+ VRAM).
+- **GPT-2:** Dismissed due to high "hallucination" rates; it often failed to link the price to the item correctly.
+
+---
+
+## Safety Guardrails Summary
+
+| Layer    | Protection           | Implementation                                      |
+|----------|--------------------|----------------------------------------------------|
+| Input    | XSS Prevention      | `bleach.clean()` strips HTML                      |
+| Input    | SQL Injection      | Pattern matching blocks `DROP TABLE` etc.         |
+| Input    | Length Limits      | Max 100–500 chars per field                       |
+| Process  | Rate Limiting      | 10 requests/hour per user (Django cache)          |
+| Output   | Structure Validation | Min 50 chars, 2+ sentences                     |
+| Fallback | Graceful Failure   | 3-tier fallback (Local → API → Template)          |
+
+---
+
+## Performance Targets
+
+To evaluate the Harbor AI system, we focused on speed, reliability, and overall user experience.
+
+The local model (`flan-t5-small`) performed well, generating responses in about 1.5 seconds on average—comfortably under the 2-second target. This makes it fast enough for real-time use without requiring a GPU.
+
+The Gemini API averaged around 3 seconds per response, staying within the 5-second limit. While slightly slower, it serves as a reliable backup and can produce higher-quality outputs when needed.
+
+With the three-tier fallback system (Local → API → Template), the system achieved a 98% success rate, exceeding the 95% goal. This shows that the system is able to handle failures effectively while still delivering usable results.
+
+User satisfaction has not yet been measured, but future updates will include feedback tracking to better understand how users interact with AI-generated descriptions.
+
+Overall, the system meets its performance goals and provides a good balance between speed and reliability.
 
 ## Future Improvements
 
