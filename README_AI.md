@@ -428,3 +428,64 @@ Overall, the system meets its performance goals and provides a good balance betw
 3. **Caching:** Cache common category + price combinations
 4. **A/B Testing:** Compare local vs. API quality metrics
 5. **Cost Optimization:** Auto-select local vs. API based on input complexity
+
+---
+
+## Different Test Inputs
+
+- Physics 212 Tutor  
+- Nail Technician  
+- Graduation Photographer  
+- Spring Clothing Sale  
+- Cleaning Help  
+
+---
+
+## Evaluation of AI Feature
+
+| Test Input | Expected Behavior | Actual Output | Quality Notes | Latency |
+|---|---|---|---|---|
+| Physics 212 Tutor | Generate a professional tutoring listing description using the provided details | Physics 212 Tutor category: Tutoring Price: $10.0 Details: UIUC student offering help with Physics 212 homework, exam prep, and weekly tutoring sessions. Meeting Location: Grainger Library 4th Floor | Low quality, repeated details of original input without much change or improvement | 3 seconds |
+| Nail Technician | Generate a detailed description including variable pricing based on time, materials, and design | Nail technician category: Home Services Price: $50.0 Details: Price varies depending on time, materials, and design of nails. Private message for price estimate. Location provided upon scheduled appointment | Low quality, repeated details of original input | 3 seconds |
+| Graduation Photographer | Generate a detailed description including pricing, additional costs, and location preferences | Photographer category: Home Services Price: $30.0 Details: 30/hour for one individual. Other services, such as photoshop, will require additional costs. Message for unique photo locations | Low quality, missing photo location details and did not refine original text | 5 seconds |
+| Spring Clothing Sale | Generate a detailed description including clothing sale information | Home Services service available. Price varies from $2-$10 for clothes. Price tag will be available on clothes. Location: 1234 S Avenu Great value at $0.0. Contact for more details! | Low quality, added unnecessary text, truncated “Avenue,” and did not meaningfully improve original input | 3 seconds |
+| Cleaning Help | Generate a refined description of cleaning services | Cleaning Help category: Home Services Price: $20.0 Details: Offering cleaning services for entire apartment. Price is hourly. Tips are welcome! | Low quality, repeated details of original input | 3 seconds |
+
+---
+
+## Failure Analysis
+
+### Failure Case 1: Model Echoing Input
+
+Across multiple test inputs, the model output simply repeated the structured input fields (title, category, price, and details) without rewriting or refining them into a professional listing description. This significantly reduces the usefulness of the AI feature, as it does not provide additional value beyond what the user already entered. The feature fails to meet its goal of generating a polished and engaging listing.
+
+This issue is likely due to weak prompt design and lack of clear generation instructions. The model appears to be concatenating input fields without guidance on how to transform them into improved text.
+
+---
+
+### Failure Case 2: Lack of Structure and Natural Language Formatting
+
+The generated outputs lack structure and do not resemble real marketplace listings. Instead of forming complete, natural-sounding sentences, the output appears as a direct string of labeled fields such as “category,” “price,” and “details.” This makes the output less readable and less appealing to users.
+
+This is likely due to the absence of explicit instructions in the prompt to format the output as a coherent paragraph. Without constraints such as tone or formatting requirements, the model defaults to reproducing the input structure rather than generating natural language.
+
+---
+
+## Improvement
+
+### Improvement: Prompt Engineering
+
+**Before:**  
+The model output simply repeated the input fields without generating a new description. The output lacked structure, professionalism, and added value, indicating that the model was not effectively performing text generation.
+
+**After:**  
+After updating the prompt, the model produced a structured sentence that transformed the input into a more natural description. For example, in the “Spring Clothing Sale” test case, the model generated a coherent sentence describing the sale and price range.
+
+**What Changed:**  
+The prompt was enhanced to include explicit instructions guiding the model to generate a professional marketplace listing. The updated prompt specified tone, structure (2–3 sentences), and constraints such as avoiding repetition and improving readability.
+
+**Why It Helped:**  
+The improvement worked because the enhanced prompt provided clearer instructions, allowing the model to move beyond simple input repetition and generate more natural language output.
+
+**Remaining Limitation:**  
+While the prompt improved structure and readability, the model still exhibits limitations such as hallucination and lack of precise grounding in the input data. For example, the model introduced incorrect information by generating “Champaign, New York” instead of just Champaign. This indicates a hallucination issue where the model adds unsupported details. This is likely due to the smaller size and limited instruction-following capability of the local model.

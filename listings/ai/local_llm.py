@@ -158,15 +158,26 @@ def generate_listing_description(title: str, category: str, price: float, basic_
         }
     
     # Build prompt
-    prompt = f"""Create a professional marketplace listing description.
+    prompt = f"""
+    You are an assistant that writes high-quality marketplace listings.
 
-Title: {title}
-Category: {category}
-Price: ${price}
-Details: {basic_info}
+    Write a professional and engaging description based on the information below.
 
-Write 2-3 engaging sentences.
-Description:"""
+    Title: {title}
+    Category: {category}
+    Price: ${price}
+    Details: {basic_info}
+
+    Requirements:
+    - Write 2–3 complete sentences
+    - Use a friendly and professional tone
+    - Do NOT repeat the input word-for-word
+    - Expand slightly on the details
+    - Make it appealing to potential buyers
+    - Do NOT include labels like 'Title', 'Category', or 'Price' in the output
+
+    Final Description:
+    """
     
     # Try to generate with local model
     try:
