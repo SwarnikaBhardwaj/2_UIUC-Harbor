@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'analytics/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script src="{% static 'analytics/dashboard.js' %}" defer></script>
+</head>
+<body class="dashboard-body">
+    <main class="dashboard-page">
+        <header class="dashboard-header">
+            <p class="dashboard-eyebrow">AI Monitoring</p>
+            <h1>Analytics Dashboard</h1>
+            <p class="dashboard-subtitle">
+                A focused view of performance, user behavior, and cost trends for your AI system.
+            </p>
+        </header>
+
+        <section class="kpi-section" aria-label="Key metrics">
+            <div class="kpi-grid">
+                <article class="kpi-card">
+                    <h2>Total Requests</h2>
+                    <p id="kpi-total-requests" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card">
+                    <h2>Average Latency (ms)</h2>
+                    <p id="kpi-avg-latency" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card">
+                    <h2>Fallback Rate (%)</h2>
+                    <p id="kpi-fallback-rate" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card">
+                    <h2>Average Cost per Request ($)</h2>
+                    <p id="kpi-avg-cost" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card kpi-card--subtle">
+                    <h2>Total Cost</h2>
+                    <p id="kpi-total-cost" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card kpi-card--subtle">
+                    <h2>Unique Users</h2>
+                    <p id="kpi-unique-users" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card kpi-card--subtle">
+                    <h2>Avg Query Length</h2>
+                    <p id="kpi-avg-query-length" class="kpi-value">--</p>
+                </article>
+                <article class="kpi-card kpi-card--subtle">
+                    <h2>Conversion Rate</h2>
+                    <p id="kpi-conversion-rate" class="kpi-value">--</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="dashboard-section" aria-labelledby="system-performance-heading">
+            <div class="section-header">
+                <h2 id="system-performance-heading">System Performance</h2>
+            </div>
+            <div class="chart-grid">
+                <article class="chart-card chart-card--wide">
+                    <h3>Latency Over Time</h3>
+                    <div class="chart-wrap">
+                        <canvas id="latency-over-time-chart" aria-label="Latency over time line chart"></canvas>
+                        <p id="latency-over-time-empty" class="empty-state">No latency data available.</p>
+                    </div>
+                </article>
+
+                <article class="chart-card">
+                    <h3>Average Latency by Listing Type</h3>
+                    <div class="chart-wrap">
+                        <canvas id="avg-latency-by-listing-type-chart" aria-label="Average latency by listing type bar chart"></canvas>
+                        <p id="avg-latency-by-listing-type-empty" class="empty-state">No listing-type latency data available.</p>
+                    </div>
+                </article>
+
+                <article class="chart-card chart-card--donut">
+                    <h3>Model Usage Split</h3>
+                    <div class="chart-wrap">
+                        <canvas id="model-usage-split-chart" aria-label="Model usage split donut chart"></canvas>
+                        <p id="model-usage-split-empty" class="empty-state">No model usage data available.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="dashboard-section" aria-labelledby="user-behavior-heading">
+            <div class="section-header">
+                <h2 id="user-behavior-heading">User Behavior</h2>
+            </div>
+            <div class="chart-grid">
+                <article class="chart-card chart-card--donut">
+                    <h3>Feature Usage</h3>
+                    <div class="chart-wrap">
+                        <canvas id="feature-usage-chart" aria-label="Feature usage donut chart"></canvas>
+                        <p id="feature-usage-empty" class="empty-state">No feature usage data available.</p>
+                    </div>
+                </article>
+
+                <article class="chart-card">
+                    <h3>Listing Type Counts</h3>
+                    <div class="chart-wrap">
+                        <canvas id="listing-type-counts-chart" aria-label="Listing type counts bar chart"></canvas>
+                        <p id="listing-type-counts-empty" class="empty-state">No listing-type counts available.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="dashboard-section" aria-labelledby="cost-monitoring-heading">
+            <div class="section-header">
+                <h2 id="cost-monitoring-heading">Cost Monitoring</h2>
+            </div>
+            <div class="chart-grid">
+                <article class="chart-card chart-card--wide">
+                    <h3>Cost Over Time</h3>
+                    <div class="chart-wrap">
+                        <canvas id="cost-over-time-chart" aria-label="Cost over time line chart"></canvas>
+                        <p id="cost-over-time-empty" class="empty-state">No cost trend data available.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <noscript>
+        <p class="noscript-message">JavaScript is required to render the charts on this dashboard.</p>
+    </noscript>
+
+    {# JSON data payloads from the backend context. #}
+    {{ summary|default:"{}"|json_script:"summary-data" }}
+    {{ avg_query_length|default:"null"|json_script:"avg-query-length-data" }}
+    {{ conversion_rate|default:"null"|json_script:"conversion-rate-data" }}
+    {{ latency_over_time|default:"[]"|json_script:"latency-over-time-data" }}
+    {{ feature_usage|default:"[]"|json_script:"feature-usage-data" }}
+    {{ listing_type_counts|default:"[]"|json_script:"listing-type-counts-data" }}
+    {{ avg_latency_by_listing_type|default:"[]"|json_script:"avg-latency-by-listing-type-data" }}
+    {{ cost_over_time|default:"[]"|json_script:"cost-over-time-data" }}
+    {{ model_usage_split|default:"[]"|json_script:"model-usage-split-data" }}
+</body>
+</html>
